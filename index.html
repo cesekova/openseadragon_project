@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+
+.viewer-container {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  left: 0;
+  top: 0;
+}
+.viewer-container .viewer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+}
+.viewer-container #osd {
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+}
+.viewer-container #osd {
+  pointer-events: auto;
+}
+
+.imageAnnotationToolbarAndButtons {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 5px;
+  background: #fff;
+  border: 1px solid #000;
+  width: 500px;
+  padding: 10px;
+}
+.controls-container button {
+  width: 100%;
+  padding: 5px 0;
+  margin-bottom: 5px;
+}
+
+
+.sliders-wrapper {
+  left: 5px;
+  bottom: 10px;
+  position: fixed;
+  z-index: 999999;
+  height: 260px;
+  width: max-content;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 15px;
+
+}
+
+.options {
+  left: 5px;
+  bottom: 280px;
+  position: fixed;
+  z-index: 999999;
+  height: 40px;
+  width: max-content;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 10px;
+
+}
+
+#input_form {
+  left: 5px;
+  position: fixed;
+  z-index: 999999;
+  height: max-content;
+  width: max-content;
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 10px;
+
+}
+
+
+
+   </style>
+  </head>
+  <body>
+    <div class="options">
+      <span> Decision layer:</span>
+      <select id="decs-layer-options">
+      </select>
+    </div>
+
+    <div class="sliders-wrapper">
+      <span> Probabilities Threshold: </span>
+      <span id='Threshold'>1</span>
+      <br>
+      <input type="range" id="probabs-layer-threshold" min="1" max="100" value="1"  step="1">
+      <br>
+      <span> Probabilities Opacity</span>
+      <br>
+      <input type="range" id="probabs-layer" min="0" max="1" value="1" step="0.1">
+      <br>
+      <span> Annotation Opacity </span>
+      <br>
+      <input type="range" id="annot-layer" min="0" max="1" value="1" step="0.1">
+      <br>
+      <span> Decision Threshold: </span>
+      <span id='RGThreshold'>1</span>
+      <br>
+      <input type="range" id="decs-layer-threshold" min="1" max="100" value="1"  step="1">
+      <br>
+      <span> Decision Opacity</span>
+      <br>
+      <input type="range" id="decs-layer" min="0" max="1" value="1" step="0.1">
+    </div>
+
+    <div class="viewer-container">
+      <div class="viewer">
+        <div id="osd"></div>
+      </div>
+    </div>
+
+
+    <div class="imageAnnotationToolbarAndButtons">
+      <div id="annotationButtonWrapper">
+          <p1>Annotations visibility: </p1>
+          <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-secondary active">
+                  <input type="radio" name="annotationsOnOrOff" id="on" autocomplete="off" value="on" checked>On
+              </label>
+              <label class="btn btn-secondary">
+                  <input type="radio" name="annotationsOnOrOff" id="off" autocomplete="off" value="off">Off
+              </label>
+          </div>
+          </br>
+          <p1> Set opacity: </p1>
+          </br>
+          <input type="range" id="opacity_control" min="0" max="1" value="0.4" step="0.1">
+          </br>
+          <button id="toggleImageAnnotationsMenu" class="btn btn-secondary" onclick="openseadragon_image_annotations.toggleMenuBar()">Annotation control</button>
+          <button type="button" class="btn btn-secondary"  autocomplete="off" id="downloadAnnotation">Download annotations</button>
+          <button type="button" class="btn btn-secondary"  autocomplete="off" id="sendAnnotation" disabled>Send</button>
+      </div>
+    </br>
+    <div id="imageAnnotationToolbar">
+      <p1> To add annotations, enter "Add Annotation"  mode. </p1>
+      </br>
+      <p1> To edit/move annotations, enter "Edit Annotation" mode. </p1>
+      </br>
+      <div id="imageToolbarRow1">
+            <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-secondary active">
+                  <input type="radio" name="cursorMode" id="navigateImage" autocomplete="off" value="OSD" checked>Navigate
+              </label>
+              <label class="btn btn-secondary">
+                  <input type="radio" name="cursorMode" id="addAnnotation" autocomplete="off" value="addAnnotation">Add Annotations
+              </label>
+              <label class="btn btn-secondary">
+                  <input type="radio" name="cursorMode" id="editAnnotation" autocomplete="off" value="editAnnotation">Edit Annotations
+              </label>
+            </div>
+            <button type="button" class="btn btn-secondary"  autocomplete="off" id="edit" disabled>Toggle editing polygon</button>
+        </div>
+        <p1> Select annotation type: </p1>
+        </br>
+      <div id="imageToolbarRow2">
+          <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-secondary active" >
+                  <input type="radio" name="annotationType" id="rectangle" autocomplete="off" value="rectangle" checked>Rectangle
+              </label>
+              <label class="btn btn-secondary">
+                  <input type="radio" name="annotationType" id="polygon" autocomplete="off" value="polygon">Polygon
+              </label>
+          </div>
+      </div>
+      <p1> Select annotation color: </p1>
+          <input type='text' id="colorPicker"/>
+      </br>
+      <div id="imageToolbarRow3">
+          <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="deleteSelected">Delete Selected</button>
+          <button type="button" class="btn btn-secondary" data-toggle="button" aria-pressed="false" autocomplete="off" id="deleteAll">Delete All</button>
+      </div>
+      </br>
+      <a id="download_link1" download="my_exported_file.json" href=”” hidden>Download as json File</a>
+      <a id="download_link2" download="my_exported_file.xml" href=”” hidden>Download as xml File</a>
+    </div>
+  </div>
+
+  <div id="input_form" style="display:none">
+    <table>
+      <tr>
+        <td>type</td>
+        <td>  <input id="annotation_type" type="type" name="type" tabindex="1" autofocus value="{type}" disabled> </td>
+      </tr>
+      <tr>
+        <td>category</td>
+        <td>
+          <select id="annotation_group" tabindex="2" name="Group">
+            <option value="None" selected>None</option>
+            <option value="Carcinoma" >Carcinoma</option>
+            <option value="Exclude">Exclude</option>
+            <option value="Another pathology">Another pathology</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>treshold</td>
+        <td id="annotation_threshold">1</td>
+      </tr>
+      <tr>
+        <td colspan="2">comment
+          <textarea id="annotation_comment" placeholder="Add a comment..." name="text" rows="2" tabindex="3"></textarea>
+        </td>
+    </tr>
+  </table>
+</div>
+
+    <!-- jquery -->
+    <link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+
+<!-- Bootstrap 4 Alpha -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+
+
+<script src="./openseadragon.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
+<script src="./fabric.min.js"></script>
+<script src="./openseadragon-fabricjs-overlay.js"></script>
+<script src="./osd_fabric_annotation.js"></script>
+
+
+
+
+<script type="text/javascript">
+
+/*------------ Initialization of input images, viewer and variabled------------*/
+
+// reads path to images from url
+var url = new URL(window.location.href);
+var urlImage = url.searchParams.get("image");
+var urlAnnotation = url.searchParams.get("annotation");
+var urlProbabilities = url.searchParams.get("probabilities");
+var urlDecision = url.searchParams.get("decision");
+var urlLogThresh = url.searchParams.get("log_thresh");
+
+// set tile sources for individual images.
+//IIPIMAGE with deepzoom protocol will provide dzi tiles from tif (urlImage, urlAnnotation ...)
+var baseTileSource = "/iipsrv/iipsrv.fcgi?Deepzoom=" + urlImage + ".dzi";
+var probasTileSource = "/iipsrv/iipsrv.fcgi?Deepzoom="+ urlProbabilities +".dzi";
+var annotTileSource = "/iipsrv/iipsrv.fcgi?Deepzoom="+ urlAnnotation +".dzi";
+var decsTileSource = "/iipsrv/iipsrv.fcgi?Deepzoom="+ urlDecision +".dzi";
+
+
+// initialize viewer
+ var viewer = OpenSeadragon({
+  id: "osd",
+  prefixUrl: "./images/",
+  tileSources:  [baseTileSource, annotTileSource,probasTileSource, decsTileSource],
+  showNavigator:  true
+
+});
+
+// set initial tresholds to 1
+var threshold = 1; // threshold for probability layer
+var RGThreshold = 1; // threshold for decision layer (RG - red/green)
+
+//set index variable (used in getIndex function)
+var a_index = "";
+var p_index = "";
+var d_index = "";
+
+// set initial log for 100 or read it from url
+//(used for pixel normalization in decision layer in changePixels function)
+var log_thresh = 100;
+if (urlLogThresh !== null){
+   log_thresh= parseFloat(urlLogThresh);
+}
+
+/*--------------- End of initialization --------------------*/
+
+
+/*---------- Handlers for opening of viewer and tile loading--------------- */
+
+
+// add handler to get the order of images when viewer is open
+viewer.addHandler('open', getIndex);
+// load optional images for decision layer
+viewer.addHandler('open', loadOptions);
+// initialize fabricjs overlay with annotation control
+viewer.addHandler('open', initialize_annotations);
+// set name of downloadable annotation file based on experiment and slide name
+viewer.addHandler('open', nameAnnotFile);
+// add handler to recalculate pixels
+viewer.addHandler('tile-loaded', changePixels);
+// add handler to recalculate pixels to navigator (so image in nav and viewer stayed the same)
+viewer.navigator.addHandler('tile-loaded', changePixels);
+
+/*-------------- End of handlers---------------- */
+
+
+/* ------------------Custom functions for handlers-------------*/
+
+/*
+getIndex()
+Set index for each succesfully loaded image
+
+- a_index = order of annotation layer
+- p_index = order of probability layer
+- d_index = order of decision layer
+- source image is always at index 0
+*/
+function getIndex(){
+  var count = viewer.world.getItemCount();
+  for (var i = 0; i < count; i++) {
+         if (viewer.world.getItemAt(i).source.tilesUrl.includes(urlAnnotation)){
+           a_index = i;
+         }
+         else if (viewer.world.getItemAt(i).source.tilesUrl.includes(urlProbabilities)){
+           p_index = i;
+         }
+         else if ((viewer.world.getItemAt(i).source.tilesUrl.includes(urlDecision)) && (urlDecision !="")){
+           d_index = i;
+         }
+  }
+};
+
+/* loadOptions()
+If one or more decesion layers are availible, function will load them into drop-down menu
+
+- check url for all decision parameters
+- create html option for each parameter
+- load each option into select "decs-layer-options" ("drop-down")
+*/
+function loadOptions(){
+  var x = document.getElementById("decs-layer-options");
+  var i = 0;
+  url.searchParams.getAll("decision").forEach(function(element) {
+    var option = document.createElement("option");
+    option.text = "decision"+i.toString();
+    option.value = element;
+    if (option.value != ""){
+      x.add(option);
+      i++;
+    };
+  })
+};
+
+/* initialize_annotations()
+Create annotation overlay and enables annotation control(add, edit, dowload...)
+
+- scale: width of source image (annotationcanvas is created with same width)
+- json_annotation: json file with annotation description, viewer will visualize
+                   provided annotaions
+*/
+function initialize_annotations(){
+var options = {
+                scale: viewer.world.getItemAt(0).source.Image.Size.Width
+              };
+var json_annotation  = "";
+openseadragon_image_annotations.initialize(json_annotation, viewer,options);
+
+};
+
+/*
+nameAnnotFile()
+Function will provide file name in case annotations are downloaded. Name is aquired by splitting
+path from pribability argument in url
+
+- file_name = experiment:slide (e.g. GLADOS-CHCK-bc3e-47b9-946e-1c4481085cb9:TP-2019_6786-01-1)
+- name is set to both download links (for xml and json file)
+- download button funcionality is described in annotation file
+*/
+
+function nameAnnotFile(){
+  var probabs_url_array = urlProbabilities.split("/");
+  var slide = probabs_url_array.pop().split(".")[0].slice(0,-4);
+  var experiment = probabs_url_array.pop();
+  var file_name = [experiment, slide].join(":");
+
+ document.getElementById('download_link1').download = file_name+".json";
+ document.getElementById('download_link2').download = file_name+".xml";
+};
+
+/*
+changePixels()
+Deals with thresholding and transparency(originaly black background) of respective layers (images)
+
+- algorithm will create new canvas and redraw desired pixels with recalculated
+  color and intensity
+- for probability layer black pixels will be ommited and rest of pixels
+  will be shown (as yellow) if their intensity pass the threshold
+- for annotation layer black pixels will be ommited, rest will be recolor(blue)
+- for decision layer black pixels will be ommited and rest of pixels (green and red)
+  will be shown if their intesity pass the threshold
+
+*/
+
+function changePixels(event){
+// if it is NOT source image create a new canvas
+  if(!event.image.src.includes(urlImage) ){
+     var canvas = document.createElement( 'canvas' )
+     canvas.width = event.image.width;
+     canvas.height = event.image.height;
+     var renderedContext = canvas.getContext('2d');
+     renderedContext.drawImage(event.image, 0, 0);
+     var tiledData = renderedContext.getImageData(0, 0, canvas.width, canvas.height);
+     var n = event.image.width * event.image.height;
+
+   // probability layer
+     if( event.image.src.includes(urlProbabilities)){
+       for (var i = 0; i <n; i++) {
+          var pix = tiledData.data.slice(i*4, i*4+4);
+           if(pix[0]+ pix[1]+pix[2] < 10){
+                  pix[3] = 0;
+          }else if((pix[0]+pix[1]+pix[2])/3 >= (threshold*255.0/100.0)){
+                  pix[3] = (pix[0]+pix[1]+pix[2])/3;
+                  pix[0] = 210;
+                  pix[1] = 235;
+                  pix[2] = 0;
+          }else {
+                  pix[3] = 0;
+                };
+          tiledData.data.set(pix, i*4);
+    };
+
+   }
+   // annotation layer
+   else if (event.image.src.includes(urlAnnotation) ){
+              for (var i = 0; i<n; i++){
+                var pix = tiledData.data.slice(i*4, i*4+4);
+                if(pix[0] + pix[1]+ pix[2] < 40){
+                         pix[3] = 0;
+                }else{
+                       pix[0] = 0;
+                       pix[1]  = 255;
+                       pix[2]  = 255;
+                     }
+                 tiledData.data.set(pix, i*4);
+
+       };
+
+
+  }
+  // decision layer
+  else if(event.image.src.includes(urlDecision)) {
+    log_max = 255;
+    for (var i = 0; i<n; i++){
+      var pix = tiledData.data.slice(i*4, i*4+4);
+          if (pix[0]+pix[1]+pix[2] < 1)  {
+  		      	       pix[3] = 0;
+          }else{
+              var max_color = Math.max(pix[0], pix[1], pix[2]);
+              var normalized_val = (Math.log2(log_thresh + max_color) - Math.log2(log_thresh))/(Math.log2(log_thresh+log_max)-Math.log2(log_thresh))*255;
+              if (normalized_val>= (RGThreshold*255/100)){
+                  pix[3] = normalized_val;
+                  if (max_color == pix[1] ){
+                       		pix[1] = 255;
+                  }else if(max_color == pix[0]){
+                       		pix[0] = 255;
+                       	}
+              }else{
+                    pix[3] = 0;
+              }
+          }
+                    tiledData.data.set(pix, i*4);
+  		 }
+  };
+
+
+
+  renderedContext.putImageData(tiledData, 0, 0);
+  event.tile.context2D = renderedContext;
+  }
+};
+
+/*----------- end of custom handler functions----------------------*/
+
+
+/*---------------- Listeners for sliders-------------------------*/
+
+/* annotation opacity control
+- on slider change, set the current value of slider
+  as an opacity for annotation layer(if loaded)
+*/
+$(".sliders-wrapper #annot-layer").on("input",function (){
+ var val = $(this).val();
+  if( a_index ){
+    viewer.world.getItemAt(a_index).setOpacity(val);
+  }
+
+});
+
+/* probabilities opacity control
+- on slider change, set value of slider as opacity for probability layer (if loaded)
+*/
+$(".sliders-wrapper #probabs-layer").on("input",function (){
+  var val = $(this).val();
+  if(p_index ){
+   viewer.world.getItemAt(p_index).setOpacity(val);
+ }
+
+});
+
+/* probabilities threshold control
+- on slider change, load probability layer anew
+(this will triger tileLoad handler which will recalculate pixels according to threshold)
+*/
+$(".sliders-wrapper #probabs-layer-threshold").on("change",function (){
+  threshold = $(this).val();
+  document.getElementById("Threshold").innerHTML = threshold;
+  if(p_index ){
+    viewer.addTiledImage({
+          tileSource : probasTileSource,
+          index: p_index,
+          opacity: $(".sliders-wrapper #probabs-layer").val(),
+          replace: true
+          });
+
+  }
+
+});
+
+/* decision opacity control
+- on slider change, set value of slider as opacity for decisio layer (if loaded)
+*/
+$(".sliders-wrapper #decs-layer").on("input",function (){
+ var val = $(this).val();
+ if(d_index){
+ viewer.world.getItemAt(d_index).setOpacity(val);
+}
+});
+
+/* probabilities threshold control
+- on slider change, load decision layer anew
+(this will triger tileLoad handler which will recalculate pixels according to RGthreshold)
+*/
+$(".sliders-wrapper #decs-layer-threshold").on("change",function (){
+  RGThreshold = $(this).val();
+  document.getElementById("RGThreshold").innerHTML = RGThreshold;
+
+ if(d_index){
+  viewer.addTiledImage({
+        tileSource : decsTileSource,
+        index: d_index,
+        opacity: $(".sliders-wrapper #decs-layer").val(),
+        replace: true
+        });
+  }
+
+});
+
+/* decision layer options
+- when new option is selected, replace it for current decision image
+*/
+$(".options #decs-layer-options").on("change",function (){
+  urlDecision = $(this).val();
+  decsTileSource = "/iipsrv/iipsrv.fcgi?Deepzoom=" + urlDecision + ".dzi";
+  if(d_index){
+
+  viewer.addTiledImage({
+        tileSource : decsTileSource,
+        index: d_index,
+        opacity: $(".sliders-wrapper #decs-layer").val(),
+        replace: true
+        });
+
+  }
+});
+
+
+/*---------------end of listeners---------------*/
+
+
+</script>
+
+
+  </body>
+</html>
