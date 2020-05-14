@@ -1,5 +1,5 @@
 # openseadragon_project
-Modification of OpenSeadragon viewer with several overlays and annotation control 
+Modification of OpenSeadragon viewer with several overlays, opacity control, pixels recalculations and annotation support 
 
 openseadragon.min.js from https://github.com/openseadragon/openseadragon  
 openseadragon-fabricjs-overlay.js from https://github.com/altert/OpenseadragonFabricjsOverlay  
