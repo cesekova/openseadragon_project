@@ -19,9 +19,9 @@ __HOW TO RUN__
   - make sure that your path to iipsrv.fcgi is the same as in line 266, or adjust it accordingly (e.g,  "/fcgi-bin/iipsrv.fcgi")
 
 5.	To load images, fill out url parameters:  
-  .../openseadragon_project/index.html?image=""&annotation =demo_images/ TP-2019_2824-01-1-annot.tif&probabilities= demo_images/TP- 2019_2824-01-1-vis.tif&decision=demo_images/ TP-2019_2824-01-1-sal.tif&log_thresh=0.001 
+  .../openseadragon_project/index.html?annotation=demo_images/TP-2019_2824-01-1-annot.tif&probabilities=demo_images/TP-2019_2824-01-1-vis.tif&decision=demo_images/TP-2019_2824-01-1-occ.tif 
 
   - image attribute stays empty as the original source image contains real patient tissue and cannot be published  
   -in case decision layer has multiple images, decision argument can be repeated  (...&decision=path/to/decision1.tif&decision=path/to/decision2.tif&decision=path/to/decision3.tif...)
-  - log_thresh attribute is used to enhanced color intesity distribution by log scaling
+
 
