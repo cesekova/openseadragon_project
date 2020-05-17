@@ -303,7 +303,7 @@ var openseadragon_image_annotations = {
 	 }
 });
   //send data to url
-					 $.post(''),  // url
+					 $.post('',  // url
         JSON.stringify(send_data), // data to be submit
        function(data, status, xhr) {   // success callback function
                 alert('status: ' + status + ', data: ' + data.responseData);
